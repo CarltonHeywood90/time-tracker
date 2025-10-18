@@ -66,14 +66,17 @@ function startRunningTimer() {
     const elapsed = Math.floor((now - start) / 1000);
     const minutes = Math.floor(elapsed / 60);
     const seconds = elapsed % 60;
-    runningTimerDisplay.textContent = `Current activity: ${currentActivity} — ${minutes}m ${seconds}s`;
+
+    // Only update the numbers span
+    runningTimerNumbers.textContent = `${minutes}m ${seconds}s`;
   }, 1000);
 }
 
 function stopRunningTimer() {
   clearInterval(timerInterval);
-  runningTimerDisplay.textContent = `Current activity: None`;
+  runningTimerNumbers.textContent = "None";
 }
+
 
 // ===== Event Listeners =====
 startBtn.addEventListener('click', () => {

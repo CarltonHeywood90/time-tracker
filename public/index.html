@@ -7,26 +7,35 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Time Tracker</h1>
+  <header>
+    <h1>Time Tracker</h1>
+  </header>
 
   <!-- Activity Section -->
-  <section>
+  <section id="activitySection">
     <h2>Log Activity</h2>
-    <label for="activity">Choose activity:</label>
-    <select id="activity">
-      <option value="Guitar">Guitar</option>
-      <option value="Walking">Walking</option>
-      <option value="Resting">Resting</option>
-      <option value="Cooking">Cooking</option>
-      <option value="Other">Other</option>
-    </select>
-    <button id="startBtn">Start</button>
-    <button id="stopBtn">Stop</button>
-    <p id="runningTimer">Current activity: None</p>
+    <div class="activity-controls">
+      <label for="activity">Choose activity:</label>
+      <select id="activity">
+        <option value="Guitar">Guitar</option>
+        <option value="Walking">Walking</option>
+        <option value="Resting">Resting</option>
+        <option value="Cooking">Cooking</option>
+        <option value="Other">Other</option>
+      </select>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn">Stop</button>
+    </div>
+
+    <!-- Running Timer -->
+    <div id="runningTimerContainer">
+      <span id="runningTimerLabel">Current activity:</span>
+      <span id="runningTimerNumbers">None</span>
+    </div>
   </section>
 
-  <!-- Logs Table -->
-  <section>
+  <!-- Logs Table Section -->
+  <section id="logsSection">
     <h2>Activity Logs</h2>
     <table id="logsTable">
       <thead>
