@@ -6,39 +6,29 @@
   <title>Time Tracker</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Time Tracker</h1>
-  </header>
+  <h1>Time Tracker</h1>
 
   <!-- Activity Section -->
-  <section id="activitySection">
+  <section>
     <h2>Log Activity</h2>
-    <div class="activity-controls">
-      <label for="activity">Choose activity:</label>
-      <select id="activity">
-        <option value="Guitar">Guitar</option>
-        <option value="Walking">Walking</option>
-        <option value="Resting">Resting</option>
-        <option value="Cooking">Cooking</option>
-        <option value="Other">Other</option>
-      </select>
-      <button id="startBtn">Start</button>
-      <button id="stopBtn">Stop</button>
-    </div>
-
-    <!-- Running Timer -->
-    <div id="runningTimerContainer">
-      <span id="runningTimerLabel">Current activity:</span>
-      <span id="runningTimerNumbers">None</span>
-    </div>
+    <label for="activity">Choose activity:</label>
+    <select id="activity">
+      <option value="Guitar">Guitar</option>
+      <option value="Walking">Walking</option>
+      <option value="Resting">Resting</option>
+      <option value="Cooking">Cooking</option>
+      <option value="Other">Other</option>
+    </select>
+    <button id="startBtn">Start</button>
+    <button id="stopBtn">Stop</button>
+    <p>Current Timer: <span id="runningTimerNumbers">None</span></p>
   </section>
 
-  <!-- Logs Table Section -->
-  <section id="logsSection">
+  <!-- Logs Table -->
+  <section>
     <h2>Activity Logs</h2>
     <table id="logsTable">
       <thead>
@@ -49,22 +39,23 @@
           <th>Duration</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Logs will appear here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     <button id="clearLogsBtn">Clear Logs</button>
   </section>
 
-
-  <!-- Chart Section -->
-  <section id="chartSection">
-    <h2>Activity Breakdown</h2>
+  <!-- Pie Chart -->
+  <section>
+    <h2>Activity Pie Chart</h2>
     <canvas id="activityChart" width="400" height="400"></canvas>
   </section>
 
+  <!-- Calendar -->
+  <section>
+    <h2>Select Date</h2>
+    <input type="date" id="activityDate">
+  </section>
 
-  <!-- Main Script -->
-  <script src="script.js"></script>
+  <script src="script.js" type="module"></script>
 </body>
 </html>
