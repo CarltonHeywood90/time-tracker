@@ -9,7 +9,7 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const logsTableBody = document.getElementById('logsTable').querySelector('tbody');
 const clearLogsBtn = document.getElementById('clearLogsBtn');
-const runningTimerDisplay = document.getElementById('runningTimer');
+const runningTimerNumbers = document.getElementById('runningTimerNumbers'); // large numbers only
 
 // ===== Helper Functions =====
 async function getLogs() {
@@ -26,7 +26,7 @@ async function getLogs() {
 
 async function addLog(activity, start, end) {
   try {
-    stopBtn.disabled = true; // Prevent double submission
+    stopBtn.disabled = true;
     const res = await fetch('/api/add-log', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -77,7 +77,6 @@ function stopRunningTimer() {
   runningTimerNumbers.textContent = "None";
 }
 
-
 // ===== Event Listeners =====
 startBtn.addEventListener('click', () => {
   if (currentActivity) {
@@ -122,19 +121,3 @@ clearLogsBtn.addEventListener('click', async () => {
 
 // Initial render
 renderLogs();
-
-function startRunningTimer() {
-  if (!currentActivity) return;
-  timerInterval = setInterval(() => {
-    const now = new Date();
-    const start = new Date(startTime);
-    const elapsed = Math.floor((now - start) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    
-    runningTimerDisplay.textContent = `Current activity: ${currentActivity} — ${minutes}m ${seconds}s`;
-    
-    // optional: grow text slightly every second
-    runningTimerDisplay.style.fontSize = `${4 + Math.min(elapsed/30, 6)}rem`;
-  }, 1000);
-}
