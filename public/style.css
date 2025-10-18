@@ -111,3 +111,11 @@ tr:hover {
     padding: 8px;
   }
 }
+
+#runningTimer {
+  font-size: 4rem;       /* very big text */
+  font-weight: bold;     /* stand out */
+  color: #ff4500;        /* optional: bright color */
+  text-align: center;    /* center on the page */
+  margin: 20px 0;        /* space above/below */
+}

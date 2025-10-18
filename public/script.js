@@ -119,3 +119,19 @@ clearLogsBtn.addEventListener('click', async () => {
 
 // Initial render
 renderLogs();
+
+function startRunningTimer() {
+  if (!currentActivity) return;
+  timerInterval = setInterval(() => {
+    const now = new Date();
+    const start = new Date(startTime);
+    const elapsed = Math.floor((now - start) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    runningTimerDisplay.textContent = `Current activity: ${currentActivity} — ${minutes}m ${seconds}s`;
+    
+    // optional: grow text slightly every second
+    runningTimerDisplay.style.fontSize = `${4 + Math.min(elapsed/30, 6)}rem`;
+  }, 1000);
+}
