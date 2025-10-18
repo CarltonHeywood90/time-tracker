@@ -12,17 +12,22 @@ const clearLogsBtn = document.getElementById('clearLogsBtn');
 const runningTimerDisplay = document.getElementById('runningTimer');
 
 // ===== Helper Functions =====
-function getLogs() {
-  return JSON.parse(localStorage.getItem('activityLogs')) || [];
+async function getLogs() {
+  const res = await fetch('/api/get-logs');
+  return await res.json();
 }
 
-function saveLogs(logs) {
-  localStorage.setItem('activityLogs', JSON.stringify(logs));
+async function addLog(activity, start, end) {
+  await fetch('/api/add-log', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ activity, start, end })
+  });
 }
 
 // ===== Render Logs =====
-function renderLogs() {
-  const logs = getLogs().sort((a, b) => new Date(b.start) - new Date(a.start));
+async function renderLogs() {
+  const logs = (await getLogs()).sort((a, b) => new Date(b.start) - new Date(a.start));
   logsTableBody.innerHTML = '';
   logs.forEach(log => {
     const tr = document.createElement('tr');
@@ -53,41 +58,26 @@ function stopRunningTimer() {
 }
 
 // ===== Event Listeners =====
-
-// Start activity
 startBtn.addEventListener('click', () => {
-  if (currentActivity) {
-    alert('Finish the current activity before starting a new one.');
-    return;
-  }
+  if (currentActivity) { alert('Finish the current activity before starting a new one.'); return; }
   currentActivity = activitySelect.value;
   startTime = new Date().toISOString();
   startRunningTimer();
 });
 
-// Stop activity
-stopBtn.addEventListener('click', () => {
-  if (!currentActivity) {
-    alert('No activity in progress.');
-    return;
-  }
-
+stopBtn.addEventListener('click', async () => {
+  if (!currentActivity) { alert('No activity in progress.'); return; }
   const endTime = new Date().toISOString();
-  const logs = getLogs();
-  logs.push({ activity: currentActivity, start: startTime, end: endTime });
-  saveLogs(logs);
-
+  await addLog(currentActivity, startTime, endTime);
   currentActivity = null;
   startTime = null;
   stopRunningTimer();
   renderLogs();
 });
 
-// Clear logs
+// Clear logs (for now, optional: add API endpoint to delete logs)
 clearLogsBtn.addEventListener('click', () => {
-  if (!confirm('Are you sure you want to clear all logs?')) return;
-  localStorage.removeItem('activityLogs');
-  renderLogs();
+  alert("Clearing logs requires a backend endpoint. We'll add this later.");
 });
 
 // Initial render
