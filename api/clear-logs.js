@@ -1,30 +1,32 @@
 import { MongoClient } from "mongodb";
 
-let client;
-let logsCollection;
-
-async function getCollection() {
-  if (!client) {
-    client = new MongoClient(process.env.MONGODB_URI);
-    await client.connect();
-    const db = client.db("time-tracker");
-    logsCollection = db.collection("logs");
-  }
-  return logsCollection;
-}
+let cachedClient = null;
+let cachedDb = null;
 
 export default async function handler(req, res) {
-  if (req.method === "DELETE") {
-    try {
-      const collection = await getCollection();
-      const result = await collection.deleteMany({});
-      console.log("Deleted count:", result.deletedCount); // debug log
-      res.status(200).json({ message: "All logs cleared" });
-    } catch (err) {
-      console.error("Error clearing logs:", err);
-      res.status(500).json({ error: "Failed to clear logs" });
+  if (req.method !== "DELETE")
+    return res.status(405).json({ error: "Method not allowed" });
+
+  try {
+    if (!cachedClient) {
+      const client = await MongoClient.connect(process.env.MONGODB_URI);
+      cachedClient = client;
+      cachedDb = client.db("time_tracker"); // SAME DB NAME
     }
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
+
+    const collection = cachedDb.collection("logs");
+
+    // Debug: check how many exist before deleting
+    const before = await collection.countDocuments();
+
+    const result = await collection.deleteMany({});
+    const after = await collection.countDocuments();
+
+    console.log("Clear logs debug — Before:", before, "Deleted:", result.deletedCount, "After:", after);
+
+    return res.status(200).json({ message: `All logs cleared. Deleted: ${result.deletedCount}` });
+  } catch (error) {
+    console.error("Error clearing logs:", error);
+    return res.status(500).json({ error: "Failed to clear logs" });
   }
 }
