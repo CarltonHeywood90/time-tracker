@@ -13,22 +13,40 @@ const runningTimerDisplay = document.getElementById('runningTimer');
 
 // ===== Helper Functions =====
 async function getLogs() {
-  const res = await fetch('/api/get-logs');
-  return await res.json();
+  try {
+    const res = await fetch('/api/get-logs');
+    if (!res.ok) throw new Error("Failed to fetch logs");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    alert("Unable to load logs.");
+    return [];
+  }
 }
 
 async function addLog(activity, start, end) {
-  await fetch('/api/add-log', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ activity, start, end })
-  });
+  try {
+    stopBtn.disabled = true; // Prevent double submission
+    const res = await fetch('/api/add-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activity, start, end })
+    });
+    if (!res.ok) throw new Error("Failed to save log");
+  } catch (err) {
+    console.error(err);
+    alert("Unable to save log.");
+  } finally {
+    stopBtn.disabled = false;
+  }
 }
 
 // ===== Render Logs =====
 async function renderLogs() {
+  logsTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
   const logs = (await getLogs()).sort((a, b) => new Date(b.start) - new Date(a.start));
   logsTableBody.innerHTML = '';
+
   logs.forEach(log => {
     const tr = document.createElement('tr');
     const start = new Date(log.start).toLocaleString();
@@ -59,14 +77,20 @@ function stopRunningTimer() {
 
 // ===== Event Listeners =====
 startBtn.addEventListener('click', () => {
-  if (currentActivity) { alert('Finish the current activity before starting a new one.'); return; }
+  if (currentActivity) {
+    alert('Finish the current activity before starting a new one.');
+    return;
+  }
   currentActivity = activitySelect.value;
   startTime = new Date().toISOString();
   startRunningTimer();
 });
 
 stopBtn.addEventListener('click', async () => {
-  if (!currentActivity) { alert('No activity in progress.'); return; }
+  if (!currentActivity) {
+    alert('No activity in progress.');
+    return;
+  }
   const endTime = new Date().toISOString();
   await addLog(currentActivity, startTime, endTime);
   currentActivity = null;
@@ -75,7 +99,7 @@ stopBtn.addEventListener('click', async () => {
   renderLogs();
 });
 
-// Clear logs (for now, optional: add API endpoint to delete logs)
+// Clear logs (optional — add API later)
 clearLogsBtn.addEventListener('click', () => {
   alert("Clearing logs requires a backend endpoint. We'll add this later.");
 });
