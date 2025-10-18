@@ -132,18 +132,23 @@ let activityChart = null;
 async function renderActivityChart() {
   const logs = await getLogs();
 
-  // Count totals per activity
+  // Sum total time per activity in minutes
   const totals = {};
   logs.forEach(log => {
+    const start = new Date(log.start);
+    const end = log.end ? new Date(log.end) : new Date();
+    const duration = (end - start) / 60000; // minutes
+
     if (!totals[log.activity]) totals[log.activity] = 0;
-    totals[log.activity] += 1;
+    totals[log.activity] += duration;
   });
 
   const labels = Object.keys(totals);
-  const data = Object.values(totals);
+  const data = Object.values(totals).map(v => parseFloat(v.toFixed(1))); // round 1 decimal
 
   const ctx = document.getElementById('activityChart').getContext('2d');
 
+  // Destroy old chart if exists
   if (activityChart) activityChart.destroy();
 
   activityChart = new Chart(ctx, {
@@ -160,9 +165,7 @@ async function renderActivityChart() {
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'bottom'
-        },
+        legend: { position: 'bottom' },
         tooltip: {
           callbacks: {
             label: function(context) {
@@ -176,16 +179,14 @@ async function renderActivityChart() {
         datalabels: {
           color: '#fff',
           formatter: (value, context) => `${value} min`,
-          font: {
-            weight: 'bold',
-            size: 14
-          }
+          font: { weight: 'bold', size: 14 }
         }
       }
     },
     plugins: [ChartDataLabels]
   });
 }
+
 
 // Call chart render after logs update
 renderLogs().then(renderActivityChart);
