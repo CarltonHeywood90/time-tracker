@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Time Tracker</h1>
@@ -23,7 +23,6 @@
     <button id="startBtn">Start</button>
     <button id="stopBtn">Stop</button>
     <p id="runningTimer">Current activity: None</p>
-
   </section>
 
   <!-- Logs Table -->
@@ -45,34 +44,40 @@
     <button id="clearLogsBtn">Clear Logs</button>
   </section>
 
-<!-- Firebase App (required) -->
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
 
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
+  <!-- Firebase Config & Initialization -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxvuodIAfIO_Sbl31O60Uz9iFtoLal-rM",
+      authDomain: "time-tracker-65f2b.firebaseapp.com",
+      projectId: "time-tracker-65f2b",
+      storageBucket: "time-tracker-65f2b.firebasestorage.app",
+      messagingSenderId: "802265536431",
+      appId: "1:802265536431:web:1699d19b0377288d4a815a"
+    };
 
-<script>
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCxvuodIAfIO_Sbl31O60Uz9iFtoLal-rM",
-    authDomain: "time-tracker-65f2b.firebaseapp.com",
-    projectId: "time-tracker-65f2b",
-    storageBucket: "time-tracker-65f2b.firebasestorage.app",
-    messagingSenderId: "802265536431",
-    appId: "1:802265536431:web:1699d19b0377288d4a815a"
-  };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
 
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  db.collection('activityLogs').get()
-  .then(() => alert("Firestore is working!"))
-  .catch(err => alert("Firestore failed: " + err));
+  <!-- Firestore Test for iPhone/Safari -->
+  <script>
+    window.addEventListener('load', () => {
+      try {
+        const testDb = firebase.firestore();
+        testDb.collection('activityLogs').get()
+          .then(() => console.log("Firestore is working!"))
+          .catch(err => console.warn("Firestore failed:", err));
+      } catch (err) {
+        console.warn("Firebase initialization failed:", err);
+      }
+    });
+  </script>
 
-</script>
-
-  
+  <!-- Your main script -->
   <script src="script.js"></script>
-
 </body>
 </html>
