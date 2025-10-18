@@ -144,7 +144,6 @@ async function renderActivityChart() {
 
   const ctx = document.getElementById('activityChart').getContext('2d');
 
-  // Destroy existing chart if it exists
   if (activityChart) activityChart.destroy();
 
   activityChart = new Chart(ctx, {
@@ -167,17 +166,44 @@ async function renderActivityChart() {
         tooltip: {
           callbacks: {
             label: function(context) {
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
               const value = context.parsed;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${context.label}: ${percentage}%`;
+              const total = context.dataset.data.reduce((a,b)=>a+b,0);
+              const percentage = ((value/total)*100).toFixed(1);
+              return `${context.label}: ${value} min (${percentage}%)`;
             }
+          }
+        },
+        datalabels: {
+          color: '#fff',
+          formatter: (value, context) => `${value} min`,
+          font: {
+            weight: 'bold',
+            size: 14
           }
         }
       }
-    }
+    },
+    plugins: [ChartDataLabels]
   });
 }
 
 // Call chart render after logs update
 renderLogs().then(renderActivityChart);
+
+async function renderActivityChart() {
+  const logs = await getLogs();
+
+  // Sum total time per activity in minutes
+  const totals = {};
+  logs.forEach(log => {
+    const start = new Date(log.start);
+    const end = log.end ? new Date(log.end) : new Date();
+    const duration = (end - start) / 60000; // duration in minutes
+
+    if (!totals[log.activity]) totals[log.activity] = 0;
+    totals[log.activity] += duration;
+  });
+
+  const labels = Object.keys(totals);
+  const data = Object.values(totals).map(v => parseFloat(v.toFixed(1))); // round to 1 decimal
+}
