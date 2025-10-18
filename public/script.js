@@ -99,9 +99,22 @@ stopBtn.addEventListener('click', async () => {
   renderLogs();
 });
 
-// Clear logs (optional — add API later)
-clearLogsBtn.addEventListener('click', () => {
-  alert("Clearing logs requires a backend endpoint. We'll add this later.");
+clearLogsBtn.addEventListener('click', async () => {
+  if (!confirm("Are you sure you want to clear all logs?")) return;
+
+  try {
+    const res = await fetch('/api/clear-logs', { method: 'DELETE' });
+    const data = await res.json();
+    if (res.ok) {
+      alert(data.message);
+      renderLogs(); // refresh table
+    } else {
+      alert(data.error || "Failed to clear logs");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error clearing logs");
+  }
 });
 
 // Initial render
