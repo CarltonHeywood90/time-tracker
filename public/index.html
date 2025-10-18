@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Tracker</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
@@ -52,6 +53,14 @@
     </table>
     <button id="clearLogsBtn">Clear Logs</button>
   </section>
+
+
+  <!-- Chart Section -->
+  <section id="chartSection">
+    <h2>Activity Breakdown</h2>
+    <canvas id="activityChart" width="400" height="400"></canvas>
+  </section>
+
 
   <!-- Main Script -->
   <script src="script.js"></script>

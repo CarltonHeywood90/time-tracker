@@ -11,6 +11,9 @@ const logsTableBody = document.getElementById('logsTable').querySelector('tbody'
 const clearLogsBtn = document.getElementById('clearLogsBtn');
 const runningTimerNumbers = document.getElementById('runningTimerNumbers'); // large numbers only
 
+// Initial render of logs and pie chart
+renderLogs().then(renderActivityChart); // chart shows initial state
+
 // ===== Helper Functions =====
 async function getLogs() {
   try {
@@ -98,8 +101,9 @@ stopBtn.addEventListener('click', async () => {
   currentActivity = null;
   startTime = null;
   stopRunningTimer();
-  renderLogs();
+  renderLogs().then(renderActivityChart); // <-- render chart after logs update
 });
+
 
 clearLogsBtn.addEventListener('click', async () => {
   if (!confirm("Are you sure you want to clear all logs?")) return;
@@ -109,7 +113,7 @@ clearLogsBtn.addEventListener('click', async () => {
     const data = await res.json();
     if (res.ok) {
       alert(data.message);
-      renderLogs(); // refresh table
+      renderLogs().then(renderActivityChart); // <-- also update chart
     } else {
       alert(data.error || "Failed to clear logs");
     }
@@ -119,5 +123,61 @@ clearLogsBtn.addEventListener('click', async () => {
   }
 });
 
+
 // Initial render
 renderLogs();
+
+let activityChart = null;
+
+async function renderActivityChart() {
+  const logs = await getLogs();
+
+  // Count totals per activity
+  const totals = {};
+  logs.forEach(log => {
+    if (!totals[log.activity]) totals[log.activity] = 0;
+    totals[log.activity] += 1;
+  });
+
+  const labels = Object.keys(totals);
+  const data = Object.values(totals);
+
+  const ctx = document.getElementById('activityChart').getContext('2d');
+
+  // Destroy existing chart if it exists
+  if (activityChart) activityChart.destroy();
+
+  activityChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const value = context.parsed;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${context.label}: ${percentage}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// Call chart render after logs update
+renderLogs().then(renderActivityChart);
