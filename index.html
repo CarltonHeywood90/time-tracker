@@ -45,6 +45,29 @@
     <button id="clearLogsBtn">Clear Logs</button>
   </section>
 
+<!-- Firebase App (required) -->
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxvuodIAfIO_Sbl31O60Uz9iFtoLal-rM",
+    authDomain: "time-tracker-65f2b.firebaseapp.com",
+    projectId: "time-tracker-65f2b",
+    storageBucket: "time-tracker-65f2b.firebasestorage.app",
+    messagingSenderId: "802265536431",
+    appId: "1:802265536431:web:1699d19b0377288d4a815a"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+  
   <script src="script.js"></script>
 
 </body>

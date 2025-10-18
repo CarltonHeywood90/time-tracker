@@ -3,9 +3,6 @@ let currentActivity = null;
 let startTime = null;
 let timerInterval = null;
 
-// Load existing logs from localStorage or initialize empty array
-const logs = JSON.parse(localStorage.getItem('activityLogs')) || [];
-
 // ===== DOM Elements =====
 const activitySelect = document.getElementById('activity');
 const startBtn = document.getElementById('startBtn');
@@ -14,12 +11,16 @@ const logsTableBody = document.getElementById('logsTable').querySelector('tbody'
 const clearLogsBtn = document.getElementById('clearLogsBtn');
 const runningTimerDisplay = document.getElementById('runningTimer');
 
+// ===== Firestore Collection Reference =====
+const logsCollection = db.collection('activityLogs');
+
 // ===== Functions =====
 
 // Render the activity logs table
-function renderLogs() {
+function renderLogs(snapshot) {
   logsTableBody.innerHTML = '';
-  logs.forEach(log => {
+  snapshot.forEach(doc => {
+    const log = doc.data();
     const tr = document.createElement('tr');
     const start = new Date(log.start).toLocaleString();
     const end = log.end ? new Date(log.end).toLocaleString() : '-';
@@ -29,9 +30,7 @@ function renderLogs() {
   });
 }
 
-// ===== Running Timer Functions =====
-
-// Start running timer
+// ===== Running Timer =====
 function startRunningTimer() {
   if (!currentActivity) return;
   timerInterval = setInterval(() => {
@@ -44,7 +43,6 @@ function startRunningTimer() {
   }, 1000);
 }
 
-// Stop running timer
 function stopRunningTimer() {
   clearInterval(timerInterval);
   runningTimerDisplay.textContent = `Current activity: None`;
@@ -52,7 +50,7 @@ function stopRunningTimer() {
 
 // ===== Event Listeners =====
 
-// Start an activity
+// Start activity
 startBtn.addEventListener('click', () => {
   if (currentActivity) {
     alert('Finish the current activity before starting a new one.');
@@ -64,29 +62,36 @@ startBtn.addEventListener('click', () => {
   startRunningTimer();
 });
 
-// Stop the current activity and save to logs
-stopBtn.addEventListener('click', () => {
+// Stop activity
+stopBtn.addEventListener('click', async () => {
   if (!currentActivity) {
     alert('No activity in progress.');
     return;
   }
   const endTime = new Date().toISOString();
-  logs.push({ activity: currentActivity, start: startTime, end: endTime });
-  localStorage.setItem('activityLogs', JSON.stringify(logs));
+  // Save log to Firestore
+  await logsCollection.add({
+    activity: currentActivity,
+    start: startTime,
+    end: endTime
+  });
+
   currentActivity = null;
   startTime = null;
   stopRunningTimer();
-  renderLogs();
 });
 
 // Clear all logs
-clearLogsBtn.addEventListener('click', () => {
-  if (confirm('Are you sure you want to clear all logs?')) {
-    logs.length = 0;
-    localStorage.setItem('activityLogs', JSON.stringify(logs));
-    renderLogs();
-  }
+clearLogsBtn.addEventListener('click', async () => {
+  if (!confirm('Are you sure you want to clear all logs?')) return;
+
+  const snapshot = await logsCollection.get();
+  const batch = db.batch();
+  snapshot.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
 });
 
-// ===== Initial Render =====
-renderLogs();
+// ===== Real-Time Listener =====
+logsCollection.orderBy('start', 'desc').onSnapshot(snapshot => {
+  renderLogs(snapshot);
+});
