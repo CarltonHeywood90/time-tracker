@@ -65,6 +65,10 @@
   // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  db.collection('activityLogs').get()
+  .then(() => alert("Firestore is working!"))
+  .catch(err => alert("Firestore failed: " + err));
+
 </script>
 
   
