@@ -246,3 +246,42 @@ activityDateInput.addEventListener('change', () => renderLogs().then(renderActiv
 
 // ===== Initial render =====
 renderLogs().then(renderActivityChart);
+
+// ===== Export CSV =====
+document.getElementById('exportCsvBtn').addEventListener('click', async () => {
+  try {
+    const logs = await getLogs();
+    if (logs.length === 0) {
+      alert('No logs to export.');
+      return;
+    }
+
+    // Convert logs to CSV format
+    const headers = ['Activity', 'Start Time', 'End Time', 'Duration (min)'];
+    const rows = logs.map(log => {
+      const start = new Date(log.start).toLocaleString();
+      const end = log.end ? new Date(log.end).toLocaleString() : '-';
+      const duration = log.end
+        ? ((new Date(log.end) - new Date(log.start)) / 60000).toFixed(1)
+        : '';
+      return [log.activity, start, end, duration];
+    });
+
+    const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary download link
+    const a = document.createElement('a');
+    a.href = url;
+    const today = new Date().toISOString().split('T')[0];
+    a.download = `time_tracker_${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Error exporting CSV:', err);
+    alert('Failed to export CSV.');
+  }
+});
