@@ -50,7 +50,7 @@ async function addLog(activity, start, end) {
 // ===== Render Logs =====
 async function renderLogs() {
   const selectedDate = activityDateInput.value;
-  logsTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+  logsTableBody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
 
   const logs = (await getLogs())
     .filter(log => new Date(log.start).toISOString().split('T')[0] === selectedDate)
@@ -58,15 +58,73 @@ async function renderLogs() {
 
   logsTableBody.innerHTML = '';
 
+  if (logs.length === 0) {
+    logsTableBody.innerHTML = '<tr><td colspan="5">No logs found for this date.</td></tr>';
+    return;
+  }
+
   logs.forEach(log => {
     const tr = document.createElement('tr');
     const start = new Date(log.start).toLocaleString();
     const end = log.end ? new Date(log.end).toLocaleString() : '-';
-    const duration = log.end ? ((new Date(log.end) - new Date(log.start)) / 60000).toFixed(1) + ' min' : '-';
-    tr.innerHTML = `<td>${log.activity}</td><td>${start}</td><td>${end}</td><td>${duration}</td>`;
+    const duration = log.end
+      ? ((new Date(log.end) - new Date(log.start)) / 60000).toFixed(1) + ' min'
+      : '-';
+
+    tr.innerHTML = `
+      <td><input type="checkbox" class="log-checkbox" data-id="${log._id}" /></td>
+      <td>${log.activity}</td>
+      <td>${start}</td>
+      <td>${end}</td>
+      <td>${duration}</td>
+    `;
     logsTableBody.appendChild(tr);
   });
+
+  attachCheckboxListeners();
+  updateClearButtonState();
 }
+
+function attachCheckboxListeners() {
+  document.querySelectorAll('.log-checkbox').forEach(cb =>
+    cb.addEventListener('change', updateClearButtonState)
+  );
+}
+
+function updateClearButtonState() {
+  const anyChecked = document.querySelectorAll('.log-checkbox:checked').length > 0;
+  document.getElementById('clearSelectedBtn').disabled = !anyChecked;
+}
+
+// ===== Clear Selected Logs =====
+document.getElementById('clearSelectedBtn').addEventListener('click', async () => {
+  const checkedBoxes = Array.from(document.querySelectorAll('.log-checkbox:checked'));
+  if (checkedBoxes.length === 0) return;
+
+  if (!confirm(`Delete ${checkedBoxes.length} selected log(s)?`)) return;
+
+  const ids = checkedBoxes.map(cb => cb.dataset.id);
+
+  try {
+    const res = await fetch('/api/clear-logs', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message || 'Selected logs deleted.');
+      renderLogs().then(renderActivityChart);
+    } else {
+      alert(data.error || 'Failed to delete selected logs.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error deleting logs.');
+  }
+});
 
 // ===== Running Timer =====
 function startRunningTimer() {
