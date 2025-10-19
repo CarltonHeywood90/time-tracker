@@ -244,9 +244,6 @@ clearLogsBtn.addEventListener('click', async () => {
 
 activityDateInput.addEventListener('change', () => renderLogs().then(renderActivityChart));
 
-// ===== Initial render =====
-renderLogs().then(renderActivityChart);
-
 // ===== Export CSV =====
 document.getElementById('exportCsvBtn').addEventListener('click', async () => {
   try {
@@ -285,3 +282,6 @@ document.getElementById('exportCsvBtn').addEventListener('click', async () => {
     alert('Failed to export CSV.');
   }
 });
+
+// ===== Initial render =====
+renderLogs().then(renderActivityChart);
