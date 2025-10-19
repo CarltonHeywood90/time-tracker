@@ -13,6 +13,8 @@ const clearSelectedBtn = document.getElementById('clearSelectedBtn');
 const exportCsvBtn = document.getElementById('exportCsvBtn');
 const runningTimerNumbers = document.getElementById('runningTimerNumbers');
 const activityDateInput = document.getElementById('activityDate');
+const newActivityInput = document.getElementById('newActivityInput');
+const addActivityBtn = document.getElementById('addActivityBtn');
 
 // ===== Set default date to today =====
 const today = new Date().toISOString().split('T')[0];
@@ -295,6 +297,42 @@ document.getElementById('exportCsvBtn').addEventListener('click', async () => {
     alert('Failed to export CSV.');
   }
 });
+
+addActivityBtn.addEventListener('click', async () => {
+  const newActivity = newActivityInput.value.trim();
+  if (!newActivity) return alert("Please enter a valid activity name.");
+
+  // Check locally first to prevent duplicates in the dropdown
+  const exists = Array.from(activitySelect.options).some(opt => opt.value.toLowerCase() === newActivity.toLowerCase());
+  if (exists) return alert("Activity already exists.");
+
+  try {
+    const res = await fetch('/api/add-activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activity: newActivity })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) return alert(data.error || "Failed to add activity.");
+
+    // Add to the dropdown
+    const option = document.createElement('option');
+    option.value = newActivity;
+    option.textContent = newActivity;
+    activitySelect.appendChild(option);
+    activitySelect.value = newActivity;
+
+    newActivityInput.value = "";
+    alert(data.message);
+  } catch (err) {
+    console.error(err);
+    alert("Error adding activity.");
+  }
+});
+
+
 
 // ===== Initial render =====
 renderLogs().then(renderActivityChart);
