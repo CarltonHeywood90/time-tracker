@@ -9,7 +9,8 @@ const activitySelect = document.getElementById('activity');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const logsTableBody = document.getElementById('logsTable').querySelector('tbody');
-const clearLogsBtn = document.getElementById('clearLogsBtn');
+const clearSelectedBtn = document.getElementById('clearSelectedBtn');
+const exportCsvBtn = document.getElementById('exportCsvBtn');
 const runningTimerNumbers = document.getElementById('runningTimerNumbers');
 const activityDateInput = document.getElementById('activityDate');
 
