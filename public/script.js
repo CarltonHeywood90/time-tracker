@@ -226,20 +226,32 @@ stopBtn.addEventListener('click', async () => {
   renderLogs().then(renderActivityChart);
 });
 
-clearLogsBtn.addEventListener('click', async () => {
-  if (!confirm("Are you sure you want to clear all logs?")) return;
+clearSelectedBtn.addEventListener('click', async () => {
+  const checkedBoxes = Array.from(document.querySelectorAll('.log-checkbox:checked'));
+  if (checkedBoxes.length === 0) return;
+
+  if (!confirm(`Delete ${checkedBoxes.length} selected log(s)?`)) return;
+
+  const ids = checkedBoxes.map(cb => cb.dataset.id);
+
   try {
-    const res = await fetch('/api/clear-logs', { method: 'DELETE' });
+    const res = await fetch('/api/clear-logs', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
     const data = await res.json();
+
     if (res.ok) {
-      alert(data.message);
+      alert(data.message || 'Selected logs deleted.');
       renderLogs().then(renderActivityChart);
     } else {
-      alert(data.error || "Failed to clear logs");
+      alert(data.error || 'Failed to delete selected logs.');
     }
   } catch (err) {
     console.error(err);
-    alert("Error clearing logs");
+    alert('Error deleting logs.');
   }
 });
 
